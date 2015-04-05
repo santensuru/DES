@@ -30,8 +30,21 @@ namespace DES
             1, 2, 2, 2, 2, 2, 2, 1
         };
 
-        static BitArray[] CC = new BitArray[17];
-        static BitArray[] DD = new BitArray[17];
+        static int[] pc2 = {
+            14, 17, 11, 24,  1,  5,
+             3, 28, 15,  6, 21, 10,
+            23, 19, 12,  4, 26,  8,
+            16,  7, 27, 20, 13,  2,
+            41, 52, 31, 37, 47, 55,
+            30, 40, 51, 45, 33, 48,
+            44, 49, 39, 56, 34, 53,
+            46, 42, 50, 36, 29, 32
+        };
+
+        //static BitArray[] CC = new BitArray[17];
+        //static BitArray[] DD = new BitArray[17];
+
+        static BitArray[] KK = new BitArray[17];
 
         static void GenerateKey()
         {
@@ -49,15 +62,15 @@ namespace DES
                 bits2[i] = bits[ pc1[i] ];
             }
 
-            CC[0] = new BitArray(28);
-            DD[0] = new BitArray(28);
+            //CC[0] = new BitArray(28);
+            //DD[0] = new BitArray(28);
 
             for (i = 0; i < 28; i++)
             {
                 c[i] = bits2[i];
                 d[i] = bits2[i + 28];
-                CC[0][i] = bits2[i];
-                DD[0][i] = bits2[i + 28];
+                //CC[0][i] = bits2[i];
+                //DD[0][i] = bits2[i + 28];
             }
             tempC = c;
             tempD = d;
@@ -68,19 +81,33 @@ namespace DES
 
             for (i = 0; i < 16; i++)
             {
-                CC[i + 1] = new BitArray(28);
-                DD[i + 1] = new BitArray(28);
+                //CC[i + 1] = new BitArray(28);
+                //DD[i + 1] = new BitArray(28);
 
                 int j;
                 for (j = 0; j < 28; j++)
                 {
                     c[j] = tempC[(j + iter[i]) % 28];
                     d[j] = tempD[(j + iter[i]) % 28];
-                    CC[i + 1][j] = tempC[(j + iter[i]) % 28];
-                    DD[i + 1][j] = tempD[(j + iter[i]) % 28];
+                    //CC[i + 1][j] = tempC[(j + iter[i]) % 28];
+                    //DD[i + 1][j] = tempD[(j + iter[i]) % 28];
                 }
                 tempC = c;
                 tempD = d;
+
+                KK[i + 1] = new BitArray(48);
+
+                for (j = 0; j < 48; j++)
+                {
+                    if (pc2[j] < 29)
+                    {
+                        KK[i + 1][j] = c[pc2[j] - 1];
+                    }
+                    else
+                    {
+                        KK[i + 1][j] = d[pc2[j] - 29];
+                    }
+                }
 
                 //Console.Write(BitArrayToHexStr(c));
                 //Console.Write(" ");
@@ -185,11 +212,9 @@ namespace DES
             Console.WriteLine(BitArrayToHexStr(new BitArray(initKey)));
             GenerateKey();
             int i;
-            for (i = 0; i < 17; i++)
+            for (i = 1; i < 17; i++)
             {
-                Console.Write(BitArrayToHexStr(CC[i]));
-                Console.Write(" ");
-                Console.WriteLine(BitArrayToHexStr(DD[i]));
+                Console.WriteLine(BitArrayToHexStr(KK[i]));
             }
             //string s = "Hello World";
             //byte[] bytes = Encoding.ASCII.GetBytes(s);
